@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/findclasses"/>
+	<classpathentry kind="src" path="src/texttable"/>
+	<classpathentry kind="src" path="src/wrapword"/>
+	<classpathentry kind="src" path="src/simplecrypt"/>
+	<classpathentry kind="src" path="src/performance"/>
+	<classpathentry kind="src" path="src/sclog"/>
+	<classpathentry kind="src" path="src/jsqlplus"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
