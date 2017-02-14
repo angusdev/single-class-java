@@ -32,8 +32,13 @@ import javax.crypto.spec.SecretKeySpec;
 
 // @formatter:off
 /**
+ * Simple encryption functions for MD5, AES. 
+ *  
  * Reference: https://gist.github.com/bricef/2436364
  *            https://forums.bukkit.org/threads/encryption.96731/
+ * 
+ * @author http://twitter.com/angusdev
+ * @version 1.0
  */
 // @formatter:on
 public class SimpleCrypt {
@@ -144,7 +149,7 @@ public class SimpleCrypt {
         System.out.println("md5           :" + m);
         System.out.println("salted md5    :" + s);
         System.out.println("matched md5   :" + SimpleCrypt.isMatchMD5(t, s, ENCRYPT_KEY));
-        System.out.println("matched md5   :" + SimpleCrypt.isMatchMD5(t, s + "0", ENCRYPT_KEY));
+        System.out.println("unmatched md5 :" + SimpleCrypt.isMatchMD5(t, s + "0", ENCRYPT_KEY));
         System.out.println("aes encrypted :" + a);
         System.out.println("aes decrypted :" + u);
         System.out.println("aes matched   :" + t.equals(u));
