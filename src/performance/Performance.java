@@ -21,10 +21,10 @@ import java.util.LinkedList;
 import java.util.Locale;
 
 /**
- * Simple performance monitoring and reporting.  
+ * Simple performance monitoring and reporting.
  * 
  * @author http://twitter.com/angusdev
- * @version 1.0
+ * @version 20170215
  */
 public class Performance {
     public static final int DEFAULT_SAMPLE_SIZE = 1000;
@@ -32,8 +32,8 @@ public class Performance {
 
     private NumberFormat numfmt;
 
-    private LinkedList<double[]> data = new LinkedList<double[]>();
-    private double total;
+    private LinkedList<long[]> data = new LinkedList<long[]>();
+    private long total;
     private int samplingInterval;
     private long nextSamplingTime;
     private String unit;
@@ -41,7 +41,7 @@ public class Performance {
 
     private long start;
     private int totalSamples;
-    private double current;
+    private long current;
     private double progressPercentage;
     private long ellapsed;
     private long estimated;
@@ -49,19 +49,19 @@ public class Performance {
     private double recentAvg;
     private double overallAvg;
 
-    public Performance(double total) {
+    public Performance(long total) {
         this(total, DEFAULT_SAMPLING_INTERVAL);
     }
 
-    public Performance(double total, int samplingInterval) {
+    public Performance(long total, int samplingInterval) {
         this(total, samplingInterval, null);
     }
 
-    public Performance(double total, int samplingInterval, String unit) {
+    public Performance(long total, int samplingInterval, String unit) {
         this(total, samplingInterval, unit, DEFAULT_SAMPLE_SIZE);
     }
 
-    public Performance(double total, int samplingInterval, String unit, int sampleSize) {
+    public Performance(long total, int samplingInterval, String unit, int sampleSize) {
         this.total = total;
         this.samplingInterval = samplingInterval;
         this.unit = unit;
@@ -71,14 +71,16 @@ public class Performance {
 
         numfmt = NumberFormat.getNumberInstance(Locale.US);
         numfmt.setMinimumIntegerDigits(0);
+        numfmt.setMinimumFractionDigits(2);
+        numfmt.setMaximumFractionDigits(2);
         numfmt.setGroupingUsed(false);
     }
 
-    public boolean addSample(double count) {
+    public boolean addSample(long count) {
         return addSample(count, false);
     }
 
-    public boolean addSample(double count, boolean forceAdd) {
+    public boolean addSample(long count, boolean forceAdd) {
         long now = System.currentTimeMillis();
 
         if (!forceAdd && now < nextSamplingTime) {
@@ -89,7 +91,7 @@ public class Performance {
 
         ++totalSamples;
 
-        double[] item = { now, count };
+        long[] item = { now, count };
         data.add(item);
         while (data.size() > sampleSize) {
             data.removeFirst();
@@ -130,7 +132,7 @@ public class Performance {
         if (data.size() > 0) {
             progressPercentage = Math.round(current * 10000.00 / total) / 100.0;
             long sampleMillis = (long) data.getLast()[0] - (data.size() > 1 ? (long) data.getFirst()[0] : start);
-            double sampleCount = data.getLast()[1] - (data.size() > 1 ? data.getFirst()[1] : 0);
+            long sampleCount = data.getLast()[1] - (data.size() > 1 ? data.getFirst()[1] : 0);
             remaining = Math.round((total - data.getLast()[1]) * 1.0 / sampleCount * sampleMillis);
             estimated = ellapsed + remaining;
             recentAvg = sampleCount * 1.0 / sampleMillis * 1000;
@@ -138,7 +140,7 @@ public class Performance {
         }
     }
 
-    public double getTotal() {
+    public long getTotal() {
         return total;
     }
 
@@ -158,7 +160,7 @@ public class Performance {
         return totalSamples;
     }
 
-    public double getCurrent() {
+    public long getCurrent() {
         return current;
     }
 
@@ -195,7 +197,8 @@ public class Performance {
     }
 
     private String getResultDesc(String prefix, String unit) {
-        String currentStr = current < 1000000000000l ? numfmt.format(current) : (current + "");
+        // String currentStr = current < 1000000000000l ? numfmt.format(current) : (current + "");
+        String currentStr = current + "";
         // String totalStr = total < 1000000000000l ? numfmt.format(total) : (total + "");
         String totalStr = total > 1000000000 ? String.format("%.2fB", total / 1000000000.0) : numfmt.format(total);
 
@@ -220,9 +223,9 @@ public class Performance {
     }
 
     private String getResultDescWithAvg(String prefix, String unit) {
-        return getResultDesc(prefix, unit) + ", avg:"
-                + (Math.round((current < total ? recentAvg : overallAvg) * 100.0) / 100.0)
-                + (unit != null ? (" " + unit) : "") + "/s";
+        double avg = (Math.round((current < total ? recentAvg : overallAvg) * 100.0) / 100.0);
+        String avgStr = avg > 1000000000 ? String.format("%.2fB", avg / 1000000000.0) : numfmt.format(avg);
+        return getResultDesc(prefix, unit) + ", avg:" + avgStr + (unit != null ? (" " + unit) : "") + "/s";
     }
 
     public static void main(String[] args) {
@@ -238,8 +241,26 @@ public class Performance {
             }
             downloaded += (int) (Math.random() * 500);
             downloaded = Math.min(downloaded, size);
-            p.addSample(downloaded);
+            p.addSample(downloaded, true);
             System.out.println(p.getResultDescWithAvg("Downloaded"));
         }
+
+        p = new Performance(Integer.MAX_VALUE, 1000);
+        for (long i = 0; i < Integer.MAX_VALUE; i++) {
+            if (p.addSample(i)) {
+                System.out.println(p.getResultDescWithAvg());
+            }
+        }
+        p.addSample(Integer.MAX_VALUE, true);
+        System.out.println(p.getResultDescWithAvg());
+
+        p = new Performance(Long.MAX_VALUE, 1000);
+        for (long i = 0; i < Integer.MAX_VALUE; i++) {
+            if (p.addSample(i)) {
+                System.out.println(p.getResultDescWithAvg());
+            }
+        }
+        p.addSample(Integer.MAX_VALUE, true);
+        System.out.println(p.getResultDescWithAvg());
     }
 }
