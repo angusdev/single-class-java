@@ -24,7 +24,7 @@ import java.util.Locale;
  * Simple performance monitoring and reporting.
  * 
  * @author http://twitter.com/angusdev
- * @version 20170215
+ * @version 20170228
  */
 public class Performance {
     public static final int DEFAULT_SAMPLE_SIZE = 1000;
@@ -41,6 +41,7 @@ public class Performance {
 
     private long start;
     private int totalSamples;
+    private long latestSample;
     private long current;
     private double progressPercentage;
     private long ellapsed;
@@ -53,15 +54,19 @@ public class Performance {
         this(total, DEFAULT_SAMPLING_INTERVAL);
     }
 
+    public Performance(long total, String unit) {
+        this(total, unit, DEFAULT_SAMPLING_INTERVAL);
+    }
+
     public Performance(long total, int samplingInterval) {
-        this(total, samplingInterval, null);
+        this(total, null, samplingInterval, DEFAULT_SAMPLE_SIZE);
     }
 
-    public Performance(long total, int samplingInterval, String unit) {
-        this(total, samplingInterval, unit, DEFAULT_SAMPLE_SIZE);
+    public Performance(long total, String unit, int samplingInterval) {
+        this(total, unit, samplingInterval, DEFAULT_SAMPLE_SIZE);
     }
 
-    public Performance(long total, int samplingInterval, String unit, int sampleSize) {
+    public Performance(long total, String unit, int samplingInterval, int sampleSize) {
         this.total = total;
         this.samplingInterval = samplingInterval;
         this.unit = unit;
@@ -76,12 +81,40 @@ public class Performance {
         numfmt.setGroupingUsed(false);
     }
 
+    public boolean inc() {
+        return inc(1);
+    }
+
+    public boolean inc(int inc) {
+        latestSample += inc;
+        return addSample(latestSample, false);
+    }
+
+    public synchronized boolean incSynchronized() {
+        return inc();
+    }
+
+    public synchronized boolean incSynchronized(int inc) {
+        return inc(inc);
+    }
+
     public boolean addSample(long count) {
         return addSample(count, false);
     }
 
+    public Performance addSampleAlways(long count) {
+        addSample(count, true);
+        return this;
+    }
+
+    public synchronized Performance addSampleAlwaysSynchronized(long count) {
+        return addSampleAlways(count);
+    }
+
     public boolean addSample(long count, boolean forceAdd) {
         long now = System.currentTimeMillis();
+
+        latestSample = count;
 
         if (!forceAdd && now < nextSamplingTime) {
             return false;
@@ -100,6 +133,10 @@ public class Performance {
         calcResult(now);
 
         return true;
+    }
+
+    public synchronized boolean addSampleSynchronized(long count, boolean forceAdd) {
+        return addSample(count, forceAdd);
     }
 
     public String millisToStr(long m) {
@@ -126,18 +163,23 @@ public class Performance {
     }
 
     private void calcResult(long now) {
-        current = (int) (totalSamples > 0 ? data.getLast()[1] : 0);
+        if (data.size() == 0) {
+            return;
+        }
+
+        long[] first = data.getFirst();
+        long[] last = data.getLast();
+
+        current = (int) (totalSamples > 0 ? last[1] : 0);
         ellapsed = now - start;
 
-        if (data.size() > 0) {
-            progressPercentage = Math.round(current * 10000.00 / total) / 100.0;
-            long sampleMillis = (long) data.getLast()[0] - (data.size() > 1 ? (long) data.getFirst()[0] : start);
-            long sampleCount = data.getLast()[1] - (data.size() > 1 ? data.getFirst()[1] : 0);
-            remaining = Math.round((total - data.getLast()[1]) * 1.0 / sampleCount * sampleMillis);
-            estimated = ellapsed + remaining;
-            recentAvg = sampleCount * 1.0 / sampleMillis * 1000;
-            overallAvg = data.getLast()[1] * 1.0 / ellapsed * 1000;
-        }
+        progressPercentage = Math.round(current * 10000.00 / total) / 100.0;
+        long sampleMillis = last[0] - (data.size() > 1 ? first[0] : start);
+        long sampleCount = last[1] - (data.size() > 1 ? first[1] : 0);
+        remaining = Math.round((total - last[1]) * 1.0 / sampleCount * sampleMillis);
+        estimated = ellapsed + remaining;
+        recentAvg = sampleCount * 1.0 / sampleMillis * 1000;
+        overallAvg = last[1] * 1.0 / ellapsed * 1000;
     }
 
     public long getTotal() {
@@ -200,7 +242,7 @@ public class Performance {
         // String currentStr = current < 1000000000000l ? numfmt.format(current) : (current + "");
         String currentStr = current + "";
         // String totalStr = total < 1000000000000l ? numfmt.format(total) : (total + "");
-        String totalStr = total > 1000000000 ? String.format("%.2fB", total / 1000000000.0) : numfmt.format(total);
+        String totalStr = total > 1000000000 ? String.format("%.2fB", total / 1000000000.0) : ("" + total);
 
         StringBuilder sb = new StringBuilder();
         sb.append(prefix != null ? (prefix + " ") : "").append(currentStr).append("/").append(totalStr)
@@ -229,8 +271,84 @@ public class Performance {
     }
 
     public static void main(String[] args) {
+        Performance p = new Performance(10, 0);
+        for (int i = 1; i <= 10; i++) {
+            System.out.println(p.addSampleAlways(i).getResultDescWithAvg());
+        }
+
+        // test multi-thread
+        System.out.println();
+        System.out.println("-----------------------------");
+        System.out.println("Multi Thread with addSample()");
+        System.out.println("-----------------------------");
+        System.out.println();
+        final Thread[] threads = new Thread[10];
+        final Performance pt = new Performance(1000000 * 10, 0);
+        for (int i = 0; i < threads.length; i++) {
+            threads[i] = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (long i = 1; i <= 1000000; i++) {
+                        try {
+                            pt.addSample(i, false);
+                        }
+                        catch (Exception ex) {
+                            System.out.println(ex.getClass().getName());
+                            return;
+                        }
+                    }
+                }
+            });
+        }
+        for (int i = 0; i < threads.length; i++) {
+            threads[i].start();
+        }
+        for (int i = 0; i < threads.length; i++) {
+            try {
+                threads[i].join();
+            }
+            catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        System.out.println();
+        System.out.println("-----------------------------------------");
+        System.out.println("Multi Thread with addSampleSynchronized()");
+        System.out.println("-----------------------------------------");
+        System.out.println();
+        Thread[] threads2 = new Thread[10];
+        final Performance pt2 = new Performance(1000000 * 10, 0);
+        for (int i = 0; i < threads.length; i++) {
+            threads2[i] = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (long i = 1; i <= 1000000; i++) {
+                        pt2.addSampleSynchronized(i, false);
+                    }
+                }
+            });
+        }
+        for (int i = 0; i < threads.length; i++) {
+            threads2[i].start();
+        }
+        for (int i = 0; i < threads.length; i++) {
+            try {
+                threads2[i].join();
+            }
+            catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        }
+        System.out.println("No exception");
+
+        System.out.println();
+        System.out.println("--------------");
+        System.out.println("Download Meter");
+        System.out.println("--------------");
+        System.out.println();
         int size = (int) (Math.random() * 4000 + 1000);
-        Performance p = new Performance(size, 1000, "KB");
+        p = new Performance(size, "KB", 1000);
         int downloaded = 0;
         while (downloaded < size) {
             try {
@@ -245,6 +363,11 @@ public class Performance {
             System.out.println(p.getResultDescWithAvg("Downloaded"));
         }
 
+        System.out.println();
+        System.out.println("---------------------------");
+        System.out.println("From 0 to Integer.MAX_VALUE");
+        System.out.println("---------------------------");
+        System.out.println();
         p = new Performance(Integer.MAX_VALUE, 1000);
         for (long i = 0; i < Integer.MAX_VALUE; i++) {
             if (p.addSample(i)) {
@@ -254,6 +377,11 @@ public class Performance {
         p.addSample(Integer.MAX_VALUE, true);
         System.out.println(p.getResultDescWithAvg());
 
+        System.out.println();
+        System.out.println("----------------------------------------------------");
+        System.out.println("From 0 to Long.MAX_VALUE (stop at Integer.MAX_VALUE)");
+        System.out.println("----------------------------------------------------");
+        System.out.println();
         p = new Performance(Long.MAX_VALUE, 1000);
         for (long i = 0; i < Integer.MAX_VALUE; i++) {
             if (p.addSample(i)) {
