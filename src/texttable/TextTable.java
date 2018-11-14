@@ -1,3 +1,4 @@
+
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one
  *  or more contributor license agreements.  See the NOTICE file
@@ -82,24 +83,24 @@ import java.util.TreeSet;
 public class TextTable {
     /** The text alignment of the cell */
     public enum Align {
-        /** Align left */
-        LEFT,
-        /** Align center */
-        CENTER,
-        /** Align right */
-        RIGHT,
-        /** Justify (but not on and align left if no space or at last line */
-        JUSTIFY_LEFT,
-        /** Justify and align right if no space or at last line */
-        JUSTIFY_RIGHT,
-        /** Justify and align center if no space or at last line */
-        JUSTIFY_CENTER,
-        /** Justify even on last line and align left if no space */
-        JUSTIFY_LEFT_ALWAYS,
-        /** Justify even on last line and align right if no space */
-        JUSTIFY_RIGHT_ALWAYS,
-        /** Justify even on last line and align center if no space */
-        JUSTIFY_CENTER_ALWAYS
+    /** Align left */
+    LEFT,
+    /** Align center */
+    CENTER,
+    /** Align right */
+    RIGHT,
+    /** Justify (but not on and align left if no space or at last line */
+    JUSTIFY_LEFT,
+    /** Justify and align right if no space or at last line */
+    JUSTIFY_RIGHT,
+    /** Justify and align center if no space or at last line */
+    JUSTIFY_CENTER,
+    /** Justify even on last line and align left if no space */
+    JUSTIFY_LEFT_ALWAYS,
+    /** Justify even on last line and align right if no space */
+    JUSTIFY_RIGHT_ALWAYS,
+    /** Justify even on last line and align center if no space */
+    JUSTIFY_CENTER_ALWAYS
     }
 
     /** The behaviour when the text overflow */
@@ -114,7 +115,7 @@ public class TextTable {
          * Ellipsis. Use {@link #setEllipsis(String)} to set the ellipsis text.
          * 
          * @see #setEllipsis(String)
-         * */
+         */
         ELLIPSIS
     }
 
@@ -262,8 +263,8 @@ public class TextTable {
             if (tl == null || th == null || tc == null || tr == null || hl == null || hh == null || hc == null
                     || hr == null || ml == null || mh == null || mc == null || mr == null || bl == null || bh == null
                     || bc == null || br == null || l == null || c == null || r == null) {
-                throw new IllegalArgumentException("the element of " + BorderStyle.class.getSimpleName()
-                        + " cannot be null");
+                throw new IllegalArgumentException(
+                        "the element of " + BorderStyle.class.getSimpleName() + " cannot be null");
             }
 
             llen = tl.length();
@@ -1061,9 +1062,8 @@ public class TextTable {
                 if (strc.length() > 0) {
                     // change to "h" border if the cell is span cell
                     if (i < data.size() - 1) {
-                        if (lineType.equals(LineType.CONTENT_BOTTOM)
-                                && (colspanInvisibleSet.contains(new XY(i, row)) || colspanInvisibleSet
-                                        .contains(new XY(i, row + 1)))) {
+                        if (lineType.equals(LineType.CONTENT_BOTTOM) && (colspanInvisibleSet.contains(new XY(i, row))
+                                || colspanInvisibleSet.contains(new XY(i, row + 1)))) {
                             strc = Utils.repeatToWidth(h[0], c.length());
                         }
                     }
@@ -1408,8 +1408,7 @@ public class TextTable {
 
     public static void main(String[] args) {
         TextTable dummy = new TextTable(0);
-        Object[][] data = {
-                { "Name", "Email", "Country", "City", "Area", "Points", "Join Date", "Login Time" },
+        Object[][] data = { { "Name", "Email", "Country", "City", "Area", "Points", "Join Date", "Login Time" },
                 { "Jimmy", "jimmy@gmail.com", "Hong Kong", "Hong Kong",
                         dummy.new XY((int) (Math.random() * 10) + 1, (int) (Math.random() * 10) + 1),
                         Math.random() * Math.random() * 1000000,
@@ -1540,14 +1539,12 @@ public class TextTable {
         table2.setBorderStyle(BorderStyle.BASIC).setBorderFill(BorderStyle.ALL & ~BorderStyle.CONTENT_V).render();
 
         System.out.println("\nDEBUG Border\n");
-        final BorderStyle debugBorder = new BorderStyle("tl", "t12", "tc", "trr", "hl", "h12", "hc", "hrr", "ml",
-                "m12", "mc", "mrr", "bl", "b12", "bc", "brr", "l*", "c*", "*rr");
+        final BorderStyle debugBorder = new BorderStyle("tl", "t12", "tc", "trr", "hl", "h12", "hc", "hrr", "ml", "m12",
+                "mc", "mrr", "bl", "b12", "bc", "brr", "l*", "c*", "*rr");
         table2.setBorderStyle(debugBorder).render();
 
         System.out.println("\nText Alignment\n");
-        new TextTable(1)
-                .setHeaderRow(0)
-                .add("This line is align LEFT", new CellStyle().setAlign(Align.LEFT))
+        new TextTable(1).setHeaderRow(0).add("This line is align LEFT", new CellStyle().setAlign(Align.LEFT))
                 .add("This line is align RIGHT", new CellStyle().setAlign(Align.RIGHT))
                 .add("This line is align CENTER", new CellStyle().setAlign(Align.CENTER))
                 .add("This line is align JUSTIFY_LEFT__", new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
@@ -1585,10 +1582,7 @@ public class TextTable {
         System.out.println("\nWidthText - setMaxWidth(1)\n");
         widthTestTable.setColumnSetting(3, 12, 0, null).setMaxWidth(30).render();
 
-        new TextTable(2)
-                .add("Song")
-                .add("Lyrics")
-                .add("Greensleeves")
+        new TextTable(2).add("Song").add("Lyrics").add("Greensleeves")
                 .add("Alas, my love, you do me wrong, To cast me off discourteously."
                         + " For I have loved you well and long, Delighting in your company."
                         + " Greensleeves was all my joy Greensleeves was my delight,"
