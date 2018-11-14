@@ -1,4 +1,3 @@
-
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one
  *  or more contributor license agreements.  See the NOTICE file
@@ -199,6 +198,49 @@ public class TextTable {
         private String tl, th, tc, tr, hl, hh, hc, hr, ml, mh, mc, mr, bl, bh, bc, br, l, c, r;
         private int llen, hlen, clen, rlen;
 
+        private static final Map<String, Integer> STYLE_MAP = new HashMap<String, Integer>();
+        static {
+            STYLE_MAP.put("TOP", BorderStyle.TOP);
+            STYLE_MAP.put("BOTTOM", BorderStyle.BOTTOM);
+            STYLE_MAP.put("RIGHT", BorderStyle.RIGHT);
+            STYLE_MAP.put("LEFT", BorderStyle.LEFT);
+            STYLE_MAP.put("CONTENT_H", BorderStyle.CONTENT_H);
+            STYLE_MAP.put("CONTENT_V", BorderStyle.CONTENT_V);
+            STYLE_MAP.put("HEADER", BorderStyle.HEADER);
+            STYLE_MAP.put("HEADER_V", BorderStyle.HEADER_V);
+            STYLE_MAP.put("FIRST_COL", BorderStyle.FIRST_COL);
+            STYLE_MAP.put("LAST_COL", BorderStyle.LAST_COL);
+            STYLE_MAP.put("OUTER", BorderStyle.OUTER);
+            STYLE_MAP.put("INNER_V", BorderStyle.INNER_V);
+            STYLE_MAP.put("INNER_H", BorderStyle.INNER_H);
+            STYLE_MAP.put("INNER", BorderStyle.INNER);
+            STYLE_MAP.put("H_ONLY", BorderStyle.H_ONLY);
+            STYLE_MAP.put("V_ONLY", BorderStyle.V_ONLY);
+            STYLE_MAP.put("NONE", BorderStyle.NONE);
+            STYLE_MAP.put("ALL", BorderStyle.ALL);
+        }
+
+        /**
+         * Get the style value from string.
+         * 
+         * @param str
+         *            the input string (e.g. "H_ONLY | V_HOLY")
+         * @return the style
+         */
+        public static int valueOf(String str) {
+            int style = 0;
+            if (str != null) {
+                final String[] splitted = str.split("\\|");
+                for (int i = 0; i < splitted.length; i++) {
+                    int s = STYLE_MAP.get(splitted[i].trim());
+                    if (s > 0) {
+                        style |= s;
+                    }
+                }
+            }
+            return style;
+        }
+
         // @formatter:off
         /**
          * <pre>
@@ -216,8 +258,9 @@ public class TextTable {
         // @formatter:on
         public static BorderStyle BASIC = new BorderStyle("+", "-", "-", "+", "|", "=", "=", "|", "|", "-", "+", "|",
                 "+", "-", "-", "+", "|", "|", "|");
-        public static BorderStyle DOT = new BorderStyle("\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7",
-                "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7");
+        public static BorderStyle DOT = new BorderStyle("\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7",
+                "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7",
+                "\u00B7", "\u00B7", "\u00B7");
 
         /**
          * Create the border style. The border of same type should have same length. E.g. "||" for <code>tl</code>,
@@ -345,6 +388,29 @@ public class TextTable {
         }
 
         /**
+         * Set the text alignment with string value.
+         * 
+         * @param align
+         *            the name of {@link Align} style.
+         * @return this
+         */
+        public CellStyle setAlign(String str) {
+            if (str != null) {
+                try {
+                    Align align = Align.valueOf(str);
+                    if (align != null) {
+                        return setAlign(align);
+                    }
+                }
+                catch (IllegalArgumentException ex) {
+                    ;
+                }
+            }
+
+            return this;
+        }
+
+        /**
          * Set the text if the cell value is <code>null</code>.
          * 
          * @param nullText
@@ -389,6 +455,29 @@ public class TextTable {
          */
         public CellStyle setWrap(Wrap wrap) {
             this.wrap = wrap;
+            return this;
+        }
+
+        /**
+         * Set the Wrap style with string value.
+         * 
+         * @param wrap
+         *            the name of {@link Wrap} style.
+         * @return this
+         */
+        public CellStyle setWrap(String wrap) {
+            if (wrap != null) {
+                try {
+                    Wrap value = Wrap.valueOf(wrap);
+                    if (value != null) {
+                        return setWrap(value);
+                    }
+                }
+                catch (IllegalArgumentException ex) {
+                    ;
+                }
+            }
+
             return this;
         }
 
