@@ -1,4 +1,3 @@
-
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one
  *  or more contributor license agreements.  See the NOTICE file
@@ -17,6 +16,8 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Timestamp;
@@ -31,8 +32,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class is to render fixed character table with support of cell wrapping, alignment, padding, border style, column
@@ -1404,6 +1408,55 @@ public class TextTable {
 
         out.println(sb.toString());
         out.flush();
+    }
+
+    public static int guessConsoleWidth() {
+        InputStream is = null;
+        Scanner s = null;
+
+        try {
+            String os = System.getProperty("os.name").toLowerCase();
+            if (os.contains("win")) {
+                Process p = Runtime.getRuntime().exec("cmd.exe /c mode con");
+                is = p.getInputStream();
+                s = new Scanner(is);
+                s.useDelimiter("\\A");
+                String output = s.hasNext() ? s.next() : "";
+                Matcher m = Pattern.compile("Columns\\:\\s*(\\d+)").matcher(output);
+                if (m.find()) {
+                    return Integer.valueOf(m.group(1));
+                }
+            }
+            else if (os.contains("mac") || os.contains("linux")) {
+                Process p = Runtime.getRuntime().exec(new String[] { "bash", "-c", "tput cols 2> /dev/tty" });
+                is = p.getInputStream();
+                s = new Scanner(is);
+                s.useDelimiter("\\A");
+                String output = s.hasNext() ? s.next() : "";
+                Matcher m = Pattern.compile("(\\d+)").matcher(output);
+                if (m.find()) {
+                    return Integer.valueOf(m.group(1));
+                }
+            }
+        }
+        catch (IOException ex) {
+            ;
+        }
+        finally {
+            if (is != null) {
+                try {
+                    is.close();
+                }
+                catch (IOException ex) {
+                    ;
+                }
+            }
+            if (s != null) {
+                s.close();
+            }
+        }
+
+        return -1;
     }
 
     public static void main(String[] args) {
