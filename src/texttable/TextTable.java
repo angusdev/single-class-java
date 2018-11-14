@@ -1,3 +1,4 @@
+
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one
  *  or more contributor license agreements.  See the NOTICE file
@@ -215,6 +216,8 @@ public class TextTable {
         // @formatter:on
         public static BorderStyle BASIC = new BorderStyle("+", "-", "-", "+", "|", "=", "=", "|", "|", "-", "+", "|",
                 "+", "-", "-", "+", "|", "|", "|");
+        public static BorderStyle DOT = new BorderStyle("\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7",
+                "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7");
 
         /**
          * Create the border style. The border of same type should have same length. E.g. "||" for <code>tl</code>,
@@ -1505,6 +1508,11 @@ public class TextTable {
 
         System.out.println("DEFAULT - headerRow=1, WRAP\n");
         table1.render();
+
+        System.out.println("BorderStyle.DOT\n");
+        table1.setBorderStyle(BorderStyle.DOT).render();
+
+        table1.setBorderStyle(BorderStyle.BASIC);
 
         System.out.println("\nCROP, BorderStyle INNER\n");
         table1.setDefaultCellStyle(new CellStyle().setWrap(Wrap.CROP)).setBorderFill(BorderStyle.INNER).render();
