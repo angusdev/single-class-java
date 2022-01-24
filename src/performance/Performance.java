@@ -24,7 +24,7 @@ import java.util.Locale;
  * Simple performance monitoring and reporting.
  * 
  * @author http://twitter.com/angusdev
- * @version 20170228
+ * @version 20170310
  */
 public class Performance {
     public static final int DEFAULT_SAMPLE_SIZE = 1000;
@@ -82,20 +82,35 @@ public class Performance {
     }
 
     public boolean inc() {
-        return inc(1);
+        return inc(1, false);
     }
 
-    public boolean inc(int inc) {
-        latestSample += inc;
-        return addSample(latestSample, false);
+    public Performance incAlways() {
+        inc(1, true);
+        return this;
+    }
+
+    public boolean inc(long inc, boolean forceAdd) {
+        // check overflow
+        if (total - latestSample < inc) {
+            latestSample = total;
+        }
+        else {
+            latestSample += inc;
+        }
+        return addSample(latestSample, forceAdd);
     }
 
     public synchronized boolean incSynchronized() {
         return inc();
     }
 
-    public synchronized boolean incSynchronized(int inc) {
-        return inc(inc);
+    public synchronized boolean incSynchronized(long inc, boolean forceAdd) {
+        return inc(inc, forceAdd);
+    }
+
+    public synchronized Performance incAlwaysSynchronized() {
+        return incAlways();
     }
 
     public boolean addSample(long count) {
@@ -105,6 +120,10 @@ public class Performance {
     public Performance addSampleAlways(long count) {
         addSample(count, true);
         return this;
+    }
+
+    public synchronized boolean addSampleSynchronized(long count, boolean forceAdd) {
+        return addSample(count, forceAdd);
     }
 
     public synchronized Performance addSampleAlwaysSynchronized(long count) {
@@ -133,10 +152,6 @@ public class Performance {
         calcResult(now);
 
         return true;
-    }
-
-    public synchronized boolean addSampleSynchronized(long count, boolean forceAdd) {
-        return addSample(count, forceAdd);
     }
 
     public String millisToStr(long m) {
@@ -170,7 +185,7 @@ public class Performance {
         long[] first = data.getFirst();
         long[] last = data.getLast();
 
-        current = (int) (totalSamples > 0 ? last[1] : 0);
+        current = last[1];
         ellapsed = now - start;
 
         progressPercentage = Math.round(current * 10000.00 / total) / 100.0;
@@ -270,6 +285,32 @@ public class Performance {
         return getResultDesc(prefix, unit) + ", avg:" + avgStr + (unit != null ? (" " + unit) : "") + "/s";
     }
 
+    private static void coverage() {
+        Performance p = new Performance(10);
+        p.calcResult(0); // wont die
+//        p.addSampleSynchronized(1, true);
+//        p.addSampleAlwaysSynchronized(2);
+//        p.incSynchronized();
+//        p.incAlwaysSynchronized();
+//        if (p.latestSample != 4) {
+//            System.out.println("\nFAIL in coverage()\n");
+//        }
+        p.getTotal();
+        p.getUnit();
+        p.getSampleSize();
+        p.getStart();
+        p.getTotalSamples();
+        p.getCurrent();
+        p.getProgressPercentage();
+        p.getEllapsed();
+        p.getEstimated();
+        p.getRemaining();
+        p.getRecentAvg();
+        p.getOverallAvg();
+        p.getResultDesc();
+        p.getResultDesc("");
+    }
+
     public static void main(String[] args) {
         Performance p = new Performance(10, 0);
         for (int i = 1; i <= 10; i++) {
@@ -282,7 +323,9 @@ public class Performance {
         System.out.println("Multi Thread with addSample()");
         System.out.println("-----------------------------");
         System.out.println();
-        final Thread[] threads = new Thread[10];
+        System.out.println("Expected exception NoSuchElementException or NullPointerException");
+        System.out.println();
+        Thread[] threads = new Thread[10];
         final Performance pt = new Performance(1000000 * 10, 0);
         for (int i = 0; i < threads.length; i++) {
             threads[i] = new Thread(new Runnable() {
@@ -292,7 +335,7 @@ public class Performance {
                         try {
                             pt.addSample(i, false);
                         }
-                        catch (Exception ex) {
+                        catch (Exception ex) { // Expected NoSuchElementException
                             System.out.println(ex.getClass().getName());
                             return;
                         }
@@ -317,24 +360,24 @@ public class Performance {
         System.out.println("Multi Thread with addSampleSynchronized()");
         System.out.println("-----------------------------------------");
         System.out.println();
-        Thread[] threads2 = new Thread[10];
+        threads = new Thread[10];
         final Performance pt2 = new Performance(1000000 * 10, 0);
         for (int i = 0; i < threads.length; i++) {
-            threads2[i] = new Thread(new Runnable() {
+            threads[i] = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     for (long i = 1; i <= 1000000; i++) {
-                        pt2.addSampleSynchronized(i, false);
+                        pt2.incSynchronized();
                     }
                 }
             });
         }
         for (int i = 0; i < threads.length; i++) {
-            threads2[i].start();
+            threads[i].start();
         }
         for (int i = 0; i < threads.length; i++) {
             try {
-                threads2[i].join();
+                threads[i].join();
             }
             catch (InterruptedException ex) {
                 ex.printStackTrace();
@@ -348,7 +391,7 @@ public class Performance {
         System.out.println("--------------");
         System.out.println();
         int size = (int) (Math.random() * 4000 + 1000);
-        p = new Performance(size, "KB", 1000);
+        p = new Performance(size, "KB");
         int downloaded = 0;
         while (downloaded < size) {
             try {
@@ -364,31 +407,71 @@ public class Performance {
         }
 
         System.out.println();
-        System.out.println("---------------------------");
-        System.out.println("From 0 to Integer.MAX_VALUE");
-        System.out.println("---------------------------");
+        System.out.println("---------------------------------------------");
+        System.out.println("From 0 to Integer.MAX_VALUE (single-threaded)");
+        System.out.println("---------------------------------------------");
         System.out.println();
         p = new Performance(Integer.MAX_VALUE, 1000);
-        for (long i = 0; i < Integer.MAX_VALUE; i++) {
-            if (p.addSample(i)) {
-                System.out.println(p.getResultDescWithAvg());
+        for (long i = 0; i < Integer.MAX_VALUE / 10; i++) {
+            if (p.inc()) {
+                System.out.println(p.getResultDesc());
             }
         }
         p.addSample(Integer.MAX_VALUE, true);
         System.out.println(p.getResultDescWithAvg());
 
         System.out.println();
-        System.out.println("----------------------------------------------------");
-        System.out.println("From 0 to Long.MAX_VALUE (stop at Integer.MAX_VALUE)");
-        System.out.println("----------------------------------------------------");
+        System.out.println("-------------------------------------------");
+        System.out.println("From 0 to Integer.MAX_VALUE (multi-threaded");
+        System.out.println("-------------------------------------------");
+        System.out.println();
+        final Performance pInt = new Performance(Integer.MAX_VALUE, 1000);
+        Thread tInt1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (long i = 0; i <= Integer.MAX_VALUE / 10; i += 2) {
+                    if (pInt.incSynchronized()) {
+                        System.out.println(pInt.getResultDesc());
+                    }
+
+                }
+            }
+        });
+        Thread tInt2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (long i = 1; i <= Integer.MAX_VALUE / 10; i += 2) {
+                    if (pInt.incSynchronized()) {
+                        System.out.println(pInt.getResultDesc());
+                    }
+                }
+            }
+        });
+        tInt1.start();
+        tInt2.start();
+        try {
+            tInt1.join();
+            tInt2.join();
+            System.out.println(pInt.getResultDescWithAvg());
+        }
+        catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+
+        System.out.println();
+        System.out.println("------------------------");
+        System.out.println("From 0 to Long.MAX_VALUE");
+        System.out.println("------------------------");
         System.out.println();
         p = new Performance(Long.MAX_VALUE, 1000);
-        for (long i = 0; i < Integer.MAX_VALUE; i++) {
-            if (p.addSample(i)) {
-                System.out.println(p.getResultDescWithAvg());
-            }
+        long step = Long.MAX_VALUE / 5000000000l;
+        for (int i = 0; i < 20; i++) {
+            p.inc(step, true);
+            System.out.println(p.getResultDescWithAvg());
         }
-        p.addSample(Integer.MAX_VALUE, true);
+        p.inc(Long.MAX_VALUE - 1, true);
         System.out.println(p.getResultDescWithAvg());
+
+        coverage();
     }
 }
