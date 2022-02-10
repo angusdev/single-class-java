@@ -527,12 +527,14 @@ public class TextTable {
             case JUSTIFY_LEFT:
             case JUSTIFY_LEFT_ALWAYS:
                 return Align.LEFT;
+            case JUSTIFY_RIGHT:
             case JUSTIFY_RIGHT_ALWAYS:
                 return Align.RIGHT;
+            case JUSTIFY_CENTER:
             case JUSTIFY_CENTER_ALWAYS:
                 return Align.CENTER;
             default:
-                return align;
+                return Align.LEFT;
             }
         }
     }
