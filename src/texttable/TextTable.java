@@ -170,7 +170,7 @@ public class TextTable {
      * bc - (9,8), (18,8)
      * br - (27,8)
      * l - (0,1), (0,3), (0,5), (0,7)
-     * c - (9,8), (18,8)
+     * c - (9,1), (18,1), (9,3), (18,3)
      * r - (27,1), (27,3), (27,5), (27,7)
      * </pre>
      */
@@ -259,9 +259,7 @@ public class TextTable {
         // @formatter:on
         public static BorderStyle BASIC = new BorderStyle("+", "-", "-", "+", "|", "=", "=", "|", "|", "-", "+", "|",
                 "+", "-", "-", "+", "|", "|", "|");
-        public static BorderStyle DOT = new BorderStyle("\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7",
-                "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7", "\u00B7",
-                "\u00B7", "\u00B7", "\u00B7");
+        public static BorderStyle DOT = new BorderStyle("\u00B7");
 
         /**
          * Create the border style. The border of same type should have same length. E.g. "||" for <code>tl</code>,
@@ -349,6 +347,16 @@ public class TextTable {
             this.l = l;
             this.c = c;
             this.r = r;
+        }
+
+        /**
+         * A shortcut to create <code>BorderStyle</code>
+         * 
+         * @param s
+         *            the string apply to all border element
+         */
+        public BorderStyle(String s) {
+            this(s, s, s, s, s, s, s, s, s, s, s, s, s, s, s, s, s, s, s);
         }
 
         private int calcWidth(int col) {
@@ -1643,14 +1651,13 @@ public class TextTable {
         table1.setDefaultCellStyle(new CellStyle().setWrap(Wrap.ELLIPSIS)).setBorderFill(BorderStyle.NONE).render();
 
         System.out.println("\nAnother Example\n");
-        new TextTable(3).setBorderFill(BorderStyle.NONE).setHeaderRow(0)
-                .setColumnSetting(0, 0, 00, new CellStyle().setPaddingLeft(0).setPaddingRight(0))
-                .setColumnSetting(1, 0, 0, new CellStyle().setPaddingLeft(1).setPaddingRight(1))
-                .setColumnSetting(2, 0, 30, new CellStyle().setPaddingLeft(0).setPaddingRight(0)).add("Name").add(":")
-                .add("Peter Chan").add("Gender").add(":").add("Male").add("Age").add(":").add(38).add("Nationality")
-                .add(":").add("Chinese").add("Email").add(":").add("peter.chan@gmail.com").add("Language").add(":")
+        new TextTable(2).setBorderStyle(new BorderStyle(":")).setBorderFill(BorderStyle.INNER_V).setHeaderRow(0)
+                .setColumnSetting(0, 0, 0, new CellStyle().setPaddingLeft(0))
+                .setColumnSetting(1, 0, 30, new CellStyle()).add("Name").add("Peter Chan").add("Gender").add("Male")
+                .add("Age").add(38).add("Nationality").add("Chinese").add("Email").add("peter.chan@gmail.com")
+                .add("Language")
                 .add("Basic, C, C++, Delphi, Lisp, Prolog, Smalltalk, Java, Scala, Ruby, PHP, Python, R")
-                .add("Expected Salary").add(":").add("$600k per annum").render();
+                .add("Expected Salary").add("$600k per annum").render();
 
         TextTable table2 = new TextTable(5).setHeaderRow(2);
         for (int i = 0; i < 9; i++) {
@@ -1692,9 +1699,9 @@ public class TextTable {
         table2.setBorderStyle(BorderStyle.BASIC).setBorderFill(BorderStyle.ALL & ~BorderStyle.CONTENT_V).render();
 
         System.out.println("\nDEBUG Border\n");
-        final BorderStyle debugBorder = new BorderStyle("tl", "t12", "tc", "trr", "hl", "h12", "hc", "hrr", "ml", "m12",
-                "mc", "mrr", "bl", "b12", "bc", "brr", "l*", "c*", "*rr");
-        table2.setBorderStyle(debugBorder).render();
+        final BorderStyle debugBorder = new BorderStyle("|tl|", "|th|", "|tc|", "|tr|", "|hl|", "|hh|", "|hc|", "|hr|",
+                "|ml|", "|mh|", "|mc|", "|mr|", "|bl|", "|bh|", "|bc|", "|br|", "|ll|", "|cc|", "|rr|");
+        table2.setBorderStyle(debugBorder).setBorderFill(BorderStyle.ALL).render();
 
         System.out.println("\nText Alignment\n");
         new TextTable(1).setMaxWidth(61).setHeaderRow(0).add(
