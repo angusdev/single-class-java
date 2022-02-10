@@ -1697,21 +1697,31 @@ public class TextTable {
         table2.setBorderStyle(debugBorder).render();
 
         System.out.println("\nText Alignment\n");
-        new TextTable(1).setMaxWidth(61).setHeaderRow(0)
-                .add("This is align LEFT, There is no JUSTIFY so will leave extra space in first line on multi-line content.",
-                        new CellStyle().setAlign(Align.LEFT))
+        new TextTable(1).setMaxWidth(61).setHeaderRow(0).add(
+                "This is align LEFT, There is no JUSTIFY so will leave extra space in first line on multi-line content.",
+                new CellStyle().setAlign(Align.LEFT))
                 .add("This is align RIGHT. There is no JUSTIFY so will leave extra space in first line on multi-line content.",
                         new CellStyle().setAlign(Align.RIGHT))
-                .add("This is align CENTER. See how it works on multi-line content.", new CellStyle().setAlign(Align.CENTER))
-                .add("This is align JUSTIFY_LEFT. See how it works on multi-line content.", new CellStyle().setAlign(Align.JUSTIFY_LEFT))
-                .add("This is align JUSTIFY_RIGHT. See how it works on multi-line content.", new CellStyle().setAlign(Align.JUSTIFY_RIGHT))
-                .add("This is align JUSTIFY_CENTER. See how it works on multi-line content.", new CellStyle().setAlign(Align.JUSTIFY_CENTER))
-                .add("The behaviour of JUSTIFY_LEFT_ALWAYS, JUSTIFY_RIGHT_ALWAYS and JUSTIFY_CENTER_ALWAYS is very similar. Only when it has single word on last line. JUSTIFY_LEFT_ALWAYS", new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
-                .add("The behaviour of JUSTIFY_LEFT_ALWAYS, JUSTIFY_RIGHT_ALWAYS and JUSTIFY_CENTER_ALWAYS is very similar. Only when it has single word on last line. JUSTIFY_RIGHT_ALWAYS", new CellStyle().setAlign(Align.JUSTIFY_RIGHT_ALWAYS))
-                .add("The behaviour of JUSTIFY_LEFT_ALWAYS, JUSTIFY_RIGHT_ALWAYS and JUSTIFY_CENTER_ALWAYS is very similar. Only when it has single word on last line. JUSTIFY_CENTER_ALWAYS", new CellStyle().setAlign(Align.JUSTIFY_CENTER_ALWAYS))
-                .add("Otherwise all JUSTIFY_XXX_ALWAYS behave in same way. This is JUSTIFY_LEFT_ALWAYS", new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
-                .add("Otherwise all JUSTIFY_XXX_ALWAYS behave in same way. This is JUSTIFY_RIGHT_ALWAYS", new CellStyle().setAlign(Align.JUSTIFY_RIGHT_ALWAYS))
-                .add("Otherwise all JUSTIFY_XXX_ALWAYS behave in same way. This is JUSTIFY_CENTER_ALWAYS", new CellStyle().setAlign(Align.JUSTIFY_CENTER_ALWAYS))
+                .add("This is align CENTER. See how it works on multi-line content.",
+                        new CellStyle().setAlign(Align.CENTER))
+                .add("This is align JUSTIFY_LEFT. See how it works on multi-line content.",
+                        new CellStyle().setAlign(Align.JUSTIFY_LEFT))
+                .add("This is align JUSTIFY_RIGHT. See how it works on multi-line content.",
+                        new CellStyle().setAlign(Align.JUSTIFY_RIGHT))
+                .add("This is align JUSTIFY_CENTER. See how it works on multi-line content.",
+                        new CellStyle().setAlign(Align.JUSTIFY_CENTER))
+                .add("The behaviour of JUSTIFY_LEFT_ALWAYS, JUSTIFY_RIGHT_ALWAYS and JUSTIFY_CENTER_ALWAYS is very similar. Only when it has single word on last line. JUSTIFY_LEFT_ALWAYS",
+                        new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
+                .add("The behaviour of JUSTIFY_LEFT_ALWAYS, JUSTIFY_RIGHT_ALWAYS and JUSTIFY_CENTER_ALWAYS is very similar. Only when it has single word on last line. JUSTIFY_RIGHT_ALWAYS",
+                        new CellStyle().setAlign(Align.JUSTIFY_RIGHT_ALWAYS))
+                .add("The behaviour of JUSTIFY_LEFT_ALWAYS, JUSTIFY_RIGHT_ALWAYS and JUSTIFY_CENTER_ALWAYS is very similar. Only when it has single word on last line. JUSTIFY_CENTER_ALWAYS",
+                        new CellStyle().setAlign(Align.JUSTIFY_CENTER_ALWAYS))
+                .add("Otherwise all JUSTIFY_XXX_ALWAYS behave in same way. This is JUSTIFY_LEFT_ALWAYS",
+                        new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
+                .add("Otherwise all JUSTIFY_XXX_ALWAYS behave in same way. This is JUSTIFY_RIGHT_ALWAYS",
+                        new CellStyle().setAlign(Align.JUSTIFY_RIGHT_ALWAYS))
+                .add("Otherwise all JUSTIFY_XXX_ALWAYS behave in same way. This is JUSTIFY_CENTER_ALWAYS",
+                        new CellStyle().setAlign(Align.JUSTIFY_CENTER_ALWAYS))
                 .add("Two words", new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
                 .add("Total three words", new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
                 .add("There are four words", new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
@@ -1729,7 +1739,7 @@ public class TextTable {
                 .add("This line is just fit and no effect (below is empty line)",
                         new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
                 .add(null, new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS)).render();
-int a=1/0;
+
         TextTable.setLogger(new ConsoleLogger(Logger.LogLevel.TRACE));
 
         TextTable widthTestTable = new TextTable(4).add("1234").add("12345").add("123456").add("1234567").add("1234")
