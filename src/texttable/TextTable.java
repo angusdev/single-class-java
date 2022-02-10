@@ -1,3 +1,4 @@
+
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one
  *  or more contributor license agreements.  See the NOTICE file
@@ -76,35 +77,35 @@ import java.util.regex.Pattern;
  * +--------------------------------------------------------------------+
  * </pre>
  * 
- * This project is inspired by http://sourceforge.net/projects/texttablefmt/
+ * This project is inspired by https://sourceforge.net/projects/texttablefmt/
  * <p>
  * <i>required Java 1.5+</i>
  * </p>
  * 
- * @author http://twitter.com/angusdev
+ * @author https://github.com/angusdev/single-class-java
  * @version 1.0
  */
 public class TextTable {
     /** The text alignment of the cell */
     public enum Align {
-    /** Align left */
-    LEFT,
-    /** Align center */
-    CENTER,
-    /** Align right */
-    RIGHT,
-    /** Justify (but not on and align left if no space or at last line */
-    JUSTIFY_LEFT,
-    /** Justify and align right if no space or at last line */
-    JUSTIFY_RIGHT,
-    /** Justify and align center if no space or at last line */
-    JUSTIFY_CENTER,
-    /** Justify even on last line and align left if no space */
-    JUSTIFY_LEFT_ALWAYS,
-    /** Justify even on last line and align right if no space */
-    JUSTIFY_RIGHT_ALWAYS,
-    /** Justify even on last line and align center if no space */
-    JUSTIFY_CENTER_ALWAYS
+        /** Align left */
+        LEFT,
+        /** Align center */
+        CENTER,
+        /** Align right */
+        RIGHT,
+        /** Justify (but not on and align left if no space or at last line */
+        JUSTIFY_LEFT,
+        /** Justify and align right if no space or at last line */
+        JUSTIFY_RIGHT,
+        /** Justify and align center if no space or at last line */
+        JUSTIFY_CENTER,
+        /** Justify even on last line and align left if no space */
+        JUSTIFY_LEFT_ALWAYS,
+        /** Justify even on last line and align right if no space */
+        JUSTIFY_RIGHT_ALWAYS,
+        /** Justify even on last line and align center if no space */
+        JUSTIFY_CENTER_ALWAYS
     }
 
     /** The behaviour when the text overflow */
@@ -1598,45 +1599,47 @@ public class TextTable {
         System.out.println("DEFAULT - headerRow=1, WRAP\n");
         table1.render();
 
-        System.out.println("BorderStyle.DOT\n");
+        System.out.println("\nsetBorderStyle(BorderStyle.DOT)\n");
         table1.setBorderStyle(BorderStyle.DOT).render();
 
         table1.setBorderStyle(BorderStyle.BASIC);
 
-        System.out.println("\nCROP, BorderStyle INNER\n");
+        System.out.println(
+                "\nsetDefaultCellStyle(new CellStyle().setWrap(Wrap.CROP))\nsetBorderFill(BorderStyle.INNER)\n");
         table1.setDefaultCellStyle(new CellStyle().setWrap(Wrap.CROP)).setBorderFill(BorderStyle.INNER).render();
 
-        System.out.println("\nBorderStyle OUTER\n");
+        System.out.println("\nsetBorderFill(BorderStyle.OUTER)\n");
         table1.setDefaultCellStyle(new CellStyle().setWrap(Wrap.CROP)).setBorderFill(BorderStyle.OUTER).render();
 
-        System.out.println("\nV_ONLY\n");
+        System.out.println("\nsetBorderFill(BorderStyle.V_ONLY)\n");
         table1.setDefaultCellStyle(new CellStyle().setWrap(Wrap.CROP)).setBorderFill(BorderStyle.V_ONLY).render();
 
-        System.out.println("\nELLIPSIS (default), ~INNER_H\n");
+        System.out.println(
+                "\nsetDefaultCellStyle(new CellStyle().setWrap(Wrap.ELLIPSIS))\nsetBorderFill(BorderStyle.ALL & ~BorderStyle.INNER_H)\n");
         table1.setDefaultCellStyle(new CellStyle().setWrap(Wrap.ELLIPSIS))
                 .setBorderFill(BorderStyle.ALL & ~BorderStyle.INNER_H).render();
 
-        System.out.println("\nELLIPSIS (...), H_ONLY\n");
-        table1.setDefaultCellStyle(new CellStyle().setWrap(Wrap.ELLIPSIS).setEllipsis("..."))
-                .setBorderFill(BorderStyle.H_ONLY).render();
+        System.out.println("\nsetDefaultCellStyle(new CellStyle().setWrap(Wrap.ELLIPSIS).setEllipsis(\"...\"))\n");
+        table1.setDefaultCellStyle(new CellStyle().setWrap(Wrap.ELLIPSIS).setEllipsis("...")).render();
 
-        System.out.println("\nH_ONLY | FIRST_COL | LAST_COL\n");
+        System.out.println("\nsetBorderFill(BorderStyle.H_ONLY | BorderStyle.FIRST_COL | BorderStyle.LAST_COL)\n");
         table1.setDefaultCellStyle(new CellStyle().setWrap(Wrap.ELLIPSIS))
                 .setBorderFill(BorderStyle.H_ONLY | BorderStyle.FIRST_COL | BorderStyle.LAST_COL).render();
 
-        System.out.println("\nH_ONLY | FIRST_COL | LAST_COL | HEADER_V\n");
+        System.out.println(
+                "\nsetBorderFill(BorderStyle.H_ONLY | BorderStyle.FIRST_COL | BorderStyle.LAST_COL | BorderStyle.HEADER_V)\n");
         table1.setDefaultCellStyle(new CellStyle().setWrap(Wrap.ELLIPSIS))
                 .setBorderFill(BorderStyle.H_ONLY | BorderStyle.FIRST_COL | BorderStyle.LAST_COL | BorderStyle.HEADER_V)
                 .render();
 
-        System.out.println("\n~HEADER_V\n");
+        System.out.println("\nsetBorderFill(BorderStyle.ALL & ~BorderStyle.HEADER_V)\n");
         table1.setDefaultCellStyle(new CellStyle().setWrap(Wrap.ELLIPSIS))
                 .setBorderFill(BorderStyle.ALL & ~BorderStyle.HEADER_V).render();
 
-        System.out.println("\nHEADER\n");
+        System.out.println("\nsetBorderFill(BorderStyle.HEADER)\n");
         table1.setDefaultCellStyle(new CellStyle().setWrap(Wrap.ELLIPSIS)).setBorderFill(BorderStyle.HEADER).render();
 
-        System.out.println("\nNONE\n");
+        System.out.println("\nsetBorderFill(BorderStyle.NONE)\n");
         table1.setDefaultCellStyle(new CellStyle().setWrap(Wrap.ELLIPSIS)).setBorderFill(BorderStyle.NONE).render();
 
         System.out.println("\nAnother Example\n");
@@ -1694,30 +1697,39 @@ public class TextTable {
         table2.setBorderStyle(debugBorder).render();
 
         System.out.println("\nText Alignment\n");
-        new TextTable(1).setHeaderRow(0).add("This line is align LEFT", new CellStyle().setAlign(Align.LEFT))
-                .add("This line is align RIGHT", new CellStyle().setAlign(Align.RIGHT))
-                .add("This line is align CENTER", new CellStyle().setAlign(Align.CENTER))
-                .add("This line is align JUSTIFY_LEFT__", new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
-                .add("This line is align JUSTIFY_RIGHT_", new CellStyle().setAlign(Align.JUSTIFY_RIGHT_ALWAYS))
-                .add("This line is align JUSTIFY_CENTER", new CellStyle().setAlign(Align.JUSTIFY_CENTER_ALWAYS))
+        new TextTable(1).setMaxWidth(61).setHeaderRow(0)
+                .add("This is align LEFT, There is no JUSTIFY so will leave extra space in first line on multi-line content.",
+                        new CellStyle().setAlign(Align.LEFT))
+                .add("This is align RIGHT. There is no JUSTIFY so will leave extra space in first line on multi-line content.",
+                        new CellStyle().setAlign(Align.RIGHT))
+                .add("This is align CENTER. See how it works on multi-line content.", new CellStyle().setAlign(Align.CENTER))
+                .add("This is align JUSTIFY_LEFT. See how it works on multi-line content.", new CellStyle().setAlign(Align.JUSTIFY_LEFT))
+                .add("This is align JUSTIFY_RIGHT. See how it works on multi-line content.", new CellStyle().setAlign(Align.JUSTIFY_RIGHT))
+                .add("This is align JUSTIFY_CENTER. See how it works on multi-line content.", new CellStyle().setAlign(Align.JUSTIFY_CENTER))
+                .add("The behaviour of JUSTIFY_LEFT_ALWAYS, JUSTIFY_RIGHT_ALWAYS and JUSTIFY_CENTER_ALWAYS is very similar. Only when it has single word on last line. JUSTIFY_LEFT_ALWAYS", new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
+                .add("The behaviour of JUSTIFY_LEFT_ALWAYS, JUSTIFY_RIGHT_ALWAYS and JUSTIFY_CENTER_ALWAYS is very similar. Only when it has single word on last line. JUSTIFY_RIGHT_ALWAYS", new CellStyle().setAlign(Align.JUSTIFY_RIGHT_ALWAYS))
+                .add("The behaviour of JUSTIFY_LEFT_ALWAYS, JUSTIFY_RIGHT_ALWAYS and JUSTIFY_CENTER_ALWAYS is very similar. Only when it has single word on last line. JUSTIFY_CENTER_ALWAYS", new CellStyle().setAlign(Align.JUSTIFY_CENTER_ALWAYS))
+                .add("Otherwise all JUSTIFY_XXX_ALWAYS behave in same way. This is JUSTIFY_LEFT_ALWAYS", new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
+                .add("Otherwise all JUSTIFY_XXX_ALWAYS behave in same way. This is JUSTIFY_RIGHT_ALWAYS", new CellStyle().setAlign(Align.JUSTIFY_RIGHT_ALWAYS))
+                .add("Otherwise all JUSTIFY_XXX_ALWAYS behave in same way. This is JUSTIFY_CENTER_ALWAYS", new CellStyle().setAlign(Align.JUSTIFY_CENTER_ALWAYS))
                 .add("Two words", new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
                 .add("Total three words", new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
                 .add("There are four words", new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
                 .add("no_space_JUSTIFY_LEFT", new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
                 .add("no_space_JUSTIFY_RIGHT", new CellStyle().setAlign(Align.JUSTIFY_RIGHT_ALWAYS))
                 .add("no_space_JUSTIFY_CENTER", new CellStyle().setAlign(Align.JUSTIFY_CENTER_ALWAYS))
-                .add("Only_work_on_space_`~!@#$%^&*()-=_+[]\\{}|;':\",./<>?",
-                        new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
-                .add("Also works if original text already fit the         width",
+                .add("also_wrap_on_hyphen_`~!@#$%^&*()=_+[]\\\\{}|;':\\\",./<>?-xxxxx",
                         new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
                 .add("Only one more space is added to this line 01234567890123",
                         new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
                 .add("Note  the extra space is move from first to last 01234567",
                         new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
+                .add("Also will re-distribute the extra                 spaces",
+                        new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
                 .add("This line is just fit and no effect (below is empty line)",
                         new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS))
                 .add(null, new CellStyle().setAlign(Align.JUSTIFY_LEFT_ALWAYS)).render();
-
+int a=1/0;
         TextTable.setLogger(new ConsoleLogger(Logger.LogLevel.TRACE));
 
         TextTable widthTestTable = new TextTable(4).add("1234").add("12345").add("123456").add("1234567").add("1234")
